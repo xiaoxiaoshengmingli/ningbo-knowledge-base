@@ -1,0 +1,29 @@
+---
+export interface Props {
+  icon: string;
+  name: string;
+  description: string;
+  count: number;
+  href: string;
+  color: string;
+  bgColor: string;
+}
+
+const { icon, name, description, count, href, color, bgColor } = Astro.props;
+---
+
+<a href={href} class="category-card" style={`background: ${bgColor}; border-color: ${color}33;`}>
+  <div class="icon">{icon}</div>
+  <div class="name">{name}</div>
+  <div class="desc">{description}</div>
+  <span class="count" style={`color: ${color};`}>
+    共 {count} 条内容 ↗
+  </span>
+</a>
+
+<style>
+  .category-card { position: relative; }
+  .category-card::before {
+    background: var(--accent, var(--color-policy));
+  }
+</style>

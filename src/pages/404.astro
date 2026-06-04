@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const categories = [
+  { icon: '📜', label: '政策文件', href: '/policies/' },
+  { icon: '🏆', label: '竞赛信息', href: '/competitions/' },
+  { icon: '🎯', label: '科技特长生', href: '/admissions/' },
+  { icon: '🗺️', label: '学区信息', href: '/districts/' },
+];
+---
+
+<BaseLayout>
+  <div style="text-align:center;padding:3rem 1rem;">
+    <div style="font-size:4rem;margin-bottom:1rem;">🔍</div>
+    <h1 style="font-size:2rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">页面未找到</h1>
+    <p style="color:var(--text-secondary);margin-bottom:2rem;">您访问的页面不存在，请检查链接是否正确。</p>
+
+    <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;">
+      <a href="/" style="padding:0.625rem 1.5rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);text-decoration:none;">
+        🏠 返回首页
+      </a>
+      {categories.map(cat => (
+        <a href={cat.href} style="padding:0.625rem 1.5rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);text-decoration:none;">
+          {cat.icon} {cat.label}
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>

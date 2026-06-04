@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+import { getCategories, getContentCounts } from '../lib/content';
+
+const counts = getContentCounts();
+const categories = getCategories();
+const catKeys = Object.keys(categories);
+const catLookup = categories as any;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="宁波编程教育招生顾问内部资料库" />
+  <title>宁波编程教育资料库</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+  <nav class="nav-bar">
+    <div class="nav-inner">
+      <a href="/" class="nav-title" style="text-decoration:none;">
+        <span>📋</span>
+        <span>招生顾问资料库</span>
+      </a>
+      <div class="nav-links">
+        {catKeys.map(key => {
+          const cat = catLookup[key];
+          return (
+            <a href={`/${key}/`} class="nav-link">
+              {cat.icon} {cat.label}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="container">
+      <slot />
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>📋 宁波编程教育招生顾问内部资料库 · 仅供内部使用</p>
+      <p>
+        数据来源：教育部官网 / 浙江省教育厅 / 宁波市教育局 / 海曙区教育局 / CCF官方公告 / 公开报道
+      </p>
+      <p style="margin-top:0.5rem;">
+        本页面为信息整理汇总工具，非官方文件。具体政策请以政府部门最新公布为准。
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

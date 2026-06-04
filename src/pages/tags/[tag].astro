@@ -1,0 +1,61 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import { getItemsByTag, getTagColor, getCategoryInfo, getCategories } from '../../lib/content';
+import tagsData from '../../data/tags.json';
+
+export async function getStaticPaths() {
+  return tagsData.map((t: { id: string }) => ({
+    params: { tag: t.id },
+    props: { tagId: t.id },
+  }));
+}
+
+const { tagId } = Astro.props as { tagId: string };
+const items = getItemsByTag(tagId);
+const tagColor = getTagColor(tagId);
+const categories = getCategories() as Record<string, { label: string; icon: string; color: string }>;
+---
+
+<BaseLayout>
+  <div class="breadcrumb">
+    <a href="/">首页</a>
+    <span class="separator">›</span>
+    <span style="color:var(--text-secondary);">🏷️ 标签</span>
+    <span class="separator">›</span>
+    <span style="color:var(--text-secondary);">{tagId}</span>
+  </div>
+
+  <h1 style="font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">
+    <span class="tag" style={`background:${tagColor}22;color:${tagColor};font-size:1rem;padding:0.25rem 0.75rem;border-radius:12px;`}>
+      🏷️ {tagId}
+    </span>
+  </h1>
+  <p style="color:var(--text-secondary);font-size:var(--font-size-sm);margin-bottom:1.5rem;">
+    共 {items.length} 条相关内容
+  </p>
+
+  {items.length > 0 ? (
+    <div style="display:flex;flex-direction:column;gap:0.75rem;">
+      {items.map(item => {
+        const cat = categories[item.category];
+        return (
+          <ContentCard
+            title={item.title}
+            summary={item.summary}
+            href={`/${item.category}/${item.slug}`}
+            category={cat?.label ?? item.category}
+            date={item.lastUpdated}
+            tags={item.tags}
+            accentColor={cat?.color}
+          />
+        );
+      })}
+    </div>
+  ) : (
+    <div class="empty-state">
+      <div class="icon">🏷️</div>
+      <p>该标签下暂无内容</p>
+    </div>
+  )}
+</BaseLayout>

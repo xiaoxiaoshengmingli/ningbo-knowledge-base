@@ -1,0 +1,34 @@
+{
+  "policies": {
+    "label": "政策文件",
+    "icon": "📜",
+    "description": "国家及地方推动编程、人工智能教育的官方政策文件",
+    "color": "#6c63ff",
+    "bgColor": "rgba(108,99,255,0.1)",
+    "order": 1
+  },
+  "competitions": {
+    "label": "竞赛信息",
+    "icon": "🏆",
+    "description": "宁波各区编程、机器人、科创类竞赛活动",
+    "color": "#00d4aa",
+    "bgColor": "rgba(0,212,170,0.1)",
+    "order": 2
+  },
+  "admissions": {
+    "label": "科技特长生",
+    "icon": "🎯",
+    "description": "宁波市各高中科技特长生招生政策与要求",
+    "color": "#f0a500",
+    "bgColor": "rgba(240,165,0,0.1)",
+    "order": 3
+  },
+  "districts": {
+    "label": "学区信息",
+    "icon": "🗺️",
+    "description": "海曙区及全市中小学学区划分与对口关系",
+    "color": "#ff6b6b",
+    "bgColor": "rgba(255,107,107,0.1)",
+    "order": 4
+  }
+}

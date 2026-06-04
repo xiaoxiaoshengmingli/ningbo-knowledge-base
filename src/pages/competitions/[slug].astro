@@ -1,0 +1,42 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+import { getCompetitions, getCategoryInfo } from '../../lib/content';
+import type { CompetitionItem } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const items = getCompetitions();
+  return items.map(item => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props as { item: CompetitionItem };
+const catInfo = getCategoryInfo('competitions')!;
+---
+
+<DocLayout
+  item={item}
+  categoryLabel={catInfo.label}
+  categoryIcon={catInfo.icon}
+  categoryKey="competitions"
+>
+  <div slot="extra-meta">
+    <div class="info-row">
+      <span class="info-label">主办方</span>
+      <span class="info-value" style="font-size:0.75rem;">{item.organizer}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">区域</span>
+      <span class="info-value">{item.district}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">适用年级</span>
+      <span class="info-value">{item.applicableGrades.join('、')}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">涉及科目</span>
+      <span class="info-value">{item.subjects.join('、')}</span>
+    </div>
+  </div>
+</DocLayout>

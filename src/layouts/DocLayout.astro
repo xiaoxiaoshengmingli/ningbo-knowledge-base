@@ -1,0 +1,109 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TagBadge from '../components/TagBadge.astro';
+import RelatedContent from '../components/RelatedContent.astro';
+import { getCategoryInfo, getRelatedItems, getTagColor } from '../lib/content';
+import type { ContentItem } from '../lib/schema';
+
+export interface Props {
+  item: ContentItem;
+  categoryLabel: string;
+  categoryIcon: string;
+  categoryKey: string;
+}
+
+const { item, categoryLabel, categoryIcon, categoryKey } = Astro.props;
+const catInfo = getCategoryInfo(item.category);
+const relatedItems = getRelatedItems(item);
+const tagColors = item.tags.map(t => ({ id: t, color: getTagColor(t) }));
+
+function formatDate(dateStr: string): string {
+  try {
+    return new Date(dateStr).toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+  } catch {
+    return dateStr;
+  }
+}
+---
+
+<BaseLayout>
+  <div class="breadcrumb">
+    <a href="/">首页</a>
+    <span class="separator">›</span>
+    <a href={`/${categoryKey}/`}>{categoryIcon} {categoryLabel}</a>
+    <span class="separator">›</span>
+    <span style="color:var(--text-secondary);">{item.title}</span>
+  </div>
+
+  <div class="detail-layout">
+    <div class="detail-main">
+      <header class="detail-header">
+        <h1 class="detail-title">{item.title}</h1>
+        <div class="detail-meta">
+          <span class="detail-meta-item">📅 {formatDate(item.publishDate)}</span>
+          {item.source && (
+            <span class="detail-meta-item">
+              📰 {item.source}
+              {item.sourceUrl && (
+                <a href={item.sourceUrl} target="_blank" style="font-size:0.75rem;color:var(--text-muted);"> ↗ 原文</a>
+              )}
+            </span>
+          )}
+          <span class="detail-meta-item">
+            <span class={`tag tag-${catInfo?.order === 1 ? 'policy' : catInfo?.order === 2 ? 'competition' : catInfo?.order === 3 ? 'admission' : 'district'}`}>
+              {categoryIcon} {categoryLabel}
+            </span>
+          </span>
+        </div>
+      </header>
+
+      <div class="detail-body">
+        <!-- Render content as raw HTML (from Markdown or HTML) -->
+        <Fragment set:html={item.content} />
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside>
+      <div class="info-sidebar">
+        <h4>📋 信息</h4>
+        <div class="info-row">
+          <span class="info-label">分类</span>
+          <span class="info-value">{categoryLabel}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">发布日期</span>
+          <span class="info-value">{formatDate(item.publishDate)}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">更新日期</span>
+          <span class="info-value">{formatDate(item.lastUpdated)}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">来源</span>
+          <span class="info-value" style="font-size:0.75rem;">{item.source}</span>
+        </div>
+        {item.sourceUrl && (
+          <div class="info-row">
+            <span class="info-label">链接</span>
+            <span class="info-value" style="font-size:0.75rem;">
+              <a href={item.sourceUrl} target="_blank">查看原文 ↗</a>
+            </span>
+          </div>
+        )}
+        {item.tags.length > 0 && (
+          <div style="margin-top: 1rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;">🏷️ 标签</div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.25rem;">
+              {tagColors.map(t => <TagBadge tagId={t.id} color={t.color} />)}
+            </div>
+          </div>
+        )}
+      </div>
+    </aside>
+  </div>
+
+  {relatedItems.length > 0 && (
+    <RelatedContent items={relatedItems} />
+  )}
+</BaseLayout>

@@ -1,0 +1,40 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+import { getPolicies, getCategoryInfo } from '../../lib/content';
+import type { PolicyItem } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const policies = getPolicies();
+  return policies.map(item => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props as { item: PolicyItem };
+const catInfo = getCategoryInfo('policies')!;
+---
+
+<DocLayout
+  item={item}
+  categoryLabel={catInfo.label}
+  categoryIcon={catInfo.icon}
+  categoryKey="policies"
+>
+  <div slot="extra-meta">
+    <div class="info-row">
+      <span class="info-label">发布机构</span>
+      <span class="info-value">{item.issuingBody}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">政策级别</span>
+      <span class="info-value" style="font-weight:600;">{item.level}</span>
+    </div>
+    {item.documentNumber && (
+      <div class="info-row">
+        <span class="info-label">文号</span>
+        <span class="info-value" style="font-size:0.75rem;">{item.documentNumber}</span>
+      </div>
+    )}
+  </div>
+</DocLayout>

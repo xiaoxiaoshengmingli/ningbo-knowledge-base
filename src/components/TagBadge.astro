@@ -1,0 +1,20 @@
+---
+export interface Props {
+  tagId: string;
+  color?: string;
+}
+
+const { tagId, color } = Astro.props;
+---
+
+<a href={`/tags/${tagId}`} class="tag-link">
+  <span class="tag" style={color ? `background:${color}22;color:${color};` : ''}>
+    {tagId}
+  </span>
+</a>
+
+<style>
+  .tag-link { text-decoration: none; }
+  .tag-link:hover { text-decoration: none; }
+  .tag { cursor: pointer; }
+</style>

@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContentCard from '../../components/ContentCard.astro';
+import FilterSidebar from '../../components/FilterSidebar.astro';
+import { getAdmissions, getCategories, getTags, getCategoryInfo } from '../../lib/content';
+
+export async function getStaticPaths() {
+  return [{ params: {}, props: {} }];
+}
+
+const admissions = getAdmissions();
+const tags = getTags();
+const catInfo = getCategoryInfo('admissions');
+admissions.sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+
+const allTags = tags.filter(t => t.category === 'admission' || t.category === 'all');
+---
+
+<BaseLayout>
+  <div class="breadcrumb">
+    <a href="/">首页</a>
+    <span class="separator">›</span>
+    <span style="color:var(--text-secondary);">🎯 科技特长生</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 260px;gap:1.5rem;">
+    <div>
+      <h1 style="font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">🎯 科技特长生</h1>
+      <p style="color:var(--text-secondary);font-size:var(--font-size-sm);margin-bottom:1.5rem;">
+        {catInfo?.description} · 共 {admissions.length} 条
+      </p>
+
+      {admissions.length > 0 ? (
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          {admissions.map(item => (
+            <ContentCard
+              title={item.title}
+              summary={item.summary}
+              href={`/admissions/${item.slug}`}
+              category="🎯 科技特长生"
+              date={item.publishDate}
+              tags={item.tags}
+              accentColor="#f0a500"
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state"><div class="icon">🎯</div><p>暂无科技特长生数据</p></div>
+      )}
+    </div>
+    <div>
+      <FilterSidebar categories={{ admissions: catInfo! }} allTags={allTags.map(t => ({ id: t.id, color: t.color }))} />
+    </div>
+  </div>
+</BaseLayout>

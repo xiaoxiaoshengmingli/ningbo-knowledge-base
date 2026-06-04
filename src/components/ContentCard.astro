@@ -1,0 +1,39 @@
+---
+export interface Props {
+  title: string;
+  summary: string;
+  href: string;
+  category: string;
+  date?: string;
+  tags?: string[];
+  accentColor?: string;
+}
+
+const { title, summary, href, category, date, tags, accentColor } = Astro.props;
+
+function formatDate(dateStr: string): string {
+  try {
+    return new Date(dateStr).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' });
+  } catch { return dateStr; }
+}
+---
+
+<article class="card" style={accentColor ? `border-left: 3px solid ${accentColor};` : ''}>
+  <a href={href} class="card-link">
+    <h3 class="card-title">{title}</h3>
+    <p class="card-summary">{summary}</p>
+  </a>
+  <div class="card-meta">
+    {date && <span>📅 {formatDate(date)}</span>}
+    <span class={`tag tag-${category}`}>{category}</span>
+    {tags?.slice(0, 3).map(t => (
+      <span class="tag" style="background:rgba(255,255,255,0.06);color:var(--text-muted);font-size:0.625rem;">{t}</span>
+    ))}
+  </div>
+</article>
+
+<style>
+  .card-link { text-decoration: none; display: block; }
+  .card-link:hover { text-decoration: none; }
+  .card-link:hover .card-title { color: var(--color-policy); transition: color 0.2s; }
+</style>

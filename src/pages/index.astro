@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CategoryCard from '../components/CategoryCard.astro';
+import ContentCard from '../components/ContentCard.astro';
+import { getCategories, getContentCounts, getRecentItems, getTagColor } from '../lib/content';
+
+const counts = getContentCounts();
+const categories = getCategories();
+const recentItems = getRecentItems(6);
+const catKeys = Object.keys(categories);
+const categoryMeta = categories as Record<string, { label: string; icon: string; description: string; color: string; bgColor: string; order: number }>;
+---
+
+<BaseLayout>
+  <!-- Header -->
+  <div style="text-align:center;padding:2rem 0 1.5rem;">
+    <h1 style="font-size:2rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">
+      🎯 宁波编程·AI教育 <span style="color:var(--color-policy);">招生顾问资料库</span>
+    </h1>
+    <p style="color:var(--text-secondary);font-size:var(--font-size-base);">
+      政策文件 · 竞赛信息 · 科技特长生 · 学区信息 — 一站式查阅
+    </p>
+    <p style="color:var(--text-muted);font-size:var(--font-size-sm);margin-top:0.5rem;">
+      共 {counts.total} 条内容 · 最后更新：2026年6月
+    </p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <span class="search-icon">🔍</span>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="搜索政策文件、比赛、学校、学区..."
+      id="search-input"
+      onkeydown="if(event.key==='Enter' && this.value.trim()){window.location.href='/search?q='+encodeURIComponent(this.value.trim());}"
+    />
+  </div>
+
+  <!-- Category cards -->
+  <div class="category-grid">
+    {catKeys.sort((a, b) => categoryMeta[a].order - categoryMeta[b].order).map(key => {
+      const cat = categoryMeta[key];
+      return (
+        <CategoryCard
+          icon={cat.icon}
+          name={cat.label}
+          description={cat.description}
+          count={counts[key as keyof typeof counts] as number}
+          href={`/${key}/`}
+          color={cat.color}
+          bgColor={cat.bgColor}
+        />
+      );
+    })}
+  </div>
+
+  <!-- Recent updates -->
+  {recentItems.length > 0 && (
+    <section>
+      <h2 style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:1rem;">
+        ⏰ 近期更新
+      </h2>
+      <div class="content-grid">
+        {recentItems.map(item => {
+          const cat = categoryMeta[item.category];
+          const accentColor = cat?.color ?? 'var(--text-muted)';
+          return (
+            <ContentCard
+              title={item.title}
+              summary={item.summary}
+              href={`/${item.category}/${item.slug}`}
+              category={cat?.label ?? item.category}
+              date={item.lastUpdated}
+              tags={item.tags.slice(0, 3)}
+              accentColor={accentColor}
+            />
+          );
+        })}
+      </div>
+    </section>
+  )}
+
+  <!-- Quick tip box -->
+  <div class="highlight-box" style="margin-top:2rem;text-align:center;">
+    <strong>💡 顾问使用提示：</strong>
+    打电话前快速搜索关键词（如「海曙 科技特长生」「CSP 2026」），找到对应资料后和家长分享。
+  </div>
+</BaseLayout>

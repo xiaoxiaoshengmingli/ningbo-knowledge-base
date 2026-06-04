@@ -1,0 +1,214 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ContentCard from '../components/ContentCard.astro';
+import FilterSidebar from '../components/FilterSidebar.astro';
+import { getCategories, getTags, getContentCounts } from '../lib/content';
+import type { ContentItem } from '../lib/schema';
+
+const categories = getCategories();
+const tags = getTags();
+const counts = getContentCounts();
+
+// Read query params
+const q = Astro.url.searchParams.get('q') || '';
+const catFilter = Astro.url.searchParams.get('cat') || '';
+const tagFilter = Astro.url.searchParams.get('tag') || '';
+
+// Import all content for search
+import policies from '../content/policies.json';
+import competitions from '../content/competitions.json';
+import admissions from '../content/admissions.json';
+import districts from '../content/districts.json';
+
+// This page uses pagefind on the client side for real search
+// Server-side results are a fallback for SSG
+const allItems: ContentItem[] = [
+  ...(policies as ContentItem[]),
+  ...(competitions as ContentItem[]),
+  ...(admissions as ContentItem[]),
+  ...(districts as ContentItem[]),
+];
+
+let filteredItems = allItems;
+if (catFilter) {
+  filteredItems = filteredItems.filter(i => i.category === catFilter);
+}
+if (tagFilter) {
+  filteredItems = filteredItems.filter(i => i.tags.includes(tagFilter));
+}
+// Note: text search (q) happens client-side via Pagefind
+
+// Cast to a simpler variable for template use
+const catMap = categories as any;
+const tagList = tags as any[];
+---
+
+<BaseLayout>
+  <div class="breadcrumb">
+    <a href="/">首页</a>
+    <span class="separator">›</span>
+    <span style="color:var(--text-secondary);">🔍 搜索</span>
+  </div>
+
+  <h1 style="font-size:1.5rem;font-weight:800;color:#fff;margin-bottom:0.5rem;">🔍 搜索</h1>
+  <p style="color:var(--text-secondary);font-size:var(--font-size-sm);margin-bottom:1.5rem;">
+    共 {counts.total} 条内容，支持全文检索
+  </p>
+
+  <!-- Search bar -->
+  <div class="search-bar" style="margin-bottom:2rem;">
+    <span class="search-icon">🔍</span>
+    <input
+      type="text"
+      class="search-input"
+      placeholder="输入关键词搜索..."
+      id="pagefind-search"
+      value={q}
+    />
+  </div>
+
+  <!-- Quick filters -->
+  <div style="display:grid;grid-template-columns:1fr 260px;gap:1.5rem;">
+    <div>
+      <!-- Pagefind results container -->
+      <div id="search-results" style="min-height:200px;">
+        {!q && !catFilter && !tagFilter ? (
+          <div class="empty-state">
+            <div class="icon">🔍</div>
+            <p>在上方搜索框输入关键词开始搜索</p>
+            <p style="font-size:var(--font-size-sm);color:var(--text-muted);margin-top:0.5rem;">
+              试试搜索「海曙」「CSP」「科技特长生」「储能学校」
+            </p>
+          </div>
+        ) : (
+          <div>
+            {catFilter || tagFilter ? (
+              <div style="margin-bottom:1rem;">
+                <p style="font-size:var(--font-size-sm);color:var(--text-secondary);">
+                  筛选结果：{filteredItems.length} 条
+                  {catFilter && (() => {
+                    const cat = catMap[catFilter];
+                    return <span> · 分类: {cat?.icon} {cat?.label}</span>;
+                  })()}
+                  {tagFilter && <span> · 标签: {tagFilter}</span>}
+                  <a href="/search" style="margin-left:0.5rem;font-size:0.75rem;">清除筛选</a>
+                </p>
+              </div>
+            ) : null}
+            <div class="content-grid" id="pagefind-results">
+              {filteredItems.map(item => {
+                const cat = catMap[item.category];
+                return (
+                  <ContentCard
+                    title={item.title}
+                    summary={item.summary}
+                    href={`/${item.category}/${item.slug}`}
+                    category={cat?.label ?? item.category}
+                    date={item.lastUpdated}
+                    tags={item.tags.slice(0, 3)}
+                    accentColor={cat?.color}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+
+    <div>
+      <FilterSidebar
+        categories={catMap}
+        activeCategory={catFilter}
+        activeTag={tagFilter}
+        allTags={tagList.map((t: any) => ({ id: t.id, color: t.color }))}
+      />
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  // Client-side Pagefind integration
+  document.addEventListener('DOMContentLoaded', async () => {
+    const input = document.getElementById('pagefind-search') as HTMLInputElement;
+    const resultsContainer = document.getElementById('pagefind-results');
+    const searchContainer = document.getElementById('search-results');
+    if (!input || !resultsContainer || !searchContainer) return;
+
+    let pagefind: any;
+
+    const doSearch = async (query: string) => {
+      if (!query.trim()) {
+        // Show all items
+        return;
+      }
+
+      try {
+        if (!pagefind) {
+          pagefind = await (window as any).pagefind;
+        }
+        if (!pagefind) return;
+
+        const search = await pagefind.search(query);
+        const results = await Promise.all(search.results.slice(0, 20).map((r: any) => r.data()));
+
+        if (results.length === 0) {
+          resultsContainer!.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">😕</div>
+              <p>没有找到「${query}」相关内容</p>
+              <p style="font-size:var(--font-size-sm);color:var(--text-muted);margin-top:0.5rem;">试试其他关键词</p>
+            </div>
+          `;
+          return;
+        }
+
+        resultsContainer!.innerHTML = results.map((r: any) => {
+          const meta = r.meta;
+          const url = r.url;
+          const excerpt = r.excerpt?.replace(/<mark>/g, '<span class="highlight">').replace(/<\/mark>/g, '</span>') || '';
+          // Determine category color
+          const catClass = url.includes('/policies/') ? 'tag-policy' :
+            url.includes('/competitions/') ? 'tag-competition' :
+            url.includes('/admissions/') ? 'tag-admission' : 'tag-district';
+          const catLabel = url.includes('/policies/') ? '📜 政策文件' :
+            url.includes('/competitions/') ? '🏆 竞赛信息' :
+            url.includes('/admissions/') ? '🎯 科技特长生' : '🗺️ 学区信息';
+
+          return `
+            <article class="card" style="border-left:3px solid var(--color-${url.includes('/policies/') ? 'policy' : url.includes('/competitions/') ? 'competition' : url.includes('/admissions/') ? 'admission' : 'district'});">
+              <a href="${url}" style="text-decoration:none;display:block;">
+                <h3 class="card-title">${meta.title}</h3>
+                <p class="card-summary" style="margin-top:0.25rem;">${excerpt || meta.summary?.slice(0, 150)}</p>
+              </a>
+              <div class="card-meta">
+                <span class="tag ${catClass}">${catLabel}</span>
+              </div>
+            </article>
+          `;
+        }).join('');
+      } catch (e) {
+        // Pagefind not loaded yet, that's ok
+      }
+    };
+
+    // Handle Enter key
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('q', input.value.trim());
+        window.history.replaceState({}, '', url.toString());
+        doSearch(input.value.trim());
+      }
+    });
+
+    // If there's an initial query, search
+    const params = new URLSearchParams(window.location.search);
+    const initialQ = params.get('q');
+    if (initialQ) {
+      input.value = initialQ;
+      // Wait for pagefind to load
+      setTimeout(() => doSearch(initialQ), 1000);
+    }
+  });
+</script>

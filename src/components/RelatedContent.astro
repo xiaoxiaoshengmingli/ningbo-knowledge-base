@@ -1,0 +1,34 @@
+---
+import ContentCard from './ContentCard.astro';
+import { getCategoryInfo, getTagColor } from '../lib/content';
+import type { ContentItem } from '../lib/schema';
+
+export interface Props {
+  items: ContentItem[];
+}
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 ? (
+  <div class="related-section">
+    <h3 class="related-title">🔗 相关内容</h3>
+    <div class="content-grid">
+      {items.map(item => {
+        const catInfo = getCategoryInfo(item.category);
+        const accentColor = catInfo?.color ?? 'var(--text-muted)';
+        return (
+          <ContentCard
+            title={item.title}
+            summary={item.summary}
+            href={`/${item.category}/${item.slug}`}
+            category={catInfo?.label ?? item.category}
+            date={item.lastUpdated}
+            tags={item.tags.slice(0, 3)}
+            accentColor={accentColor}
+          />
+        );
+      })}
+    </div>
+  </div>
+) : null}

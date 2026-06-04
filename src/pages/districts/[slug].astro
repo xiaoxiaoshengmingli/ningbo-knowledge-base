@@ -1,0 +1,54 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+import { getDistricts, getCategoryInfo } from '../../lib/content';
+import type { DistrictItem } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const items = getDistricts();
+  return items.map(item => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props as { item: DistrictItem };
+const catInfo = getCategoryInfo('districts')!;
+---
+
+<DocLayout
+  item={item}
+  categoryLabel={catInfo.label}
+  categoryIcon={catInfo.icon}
+  categoryKey="districts"
+>
+  <div slot="extra-meta">
+    <div class="info-row">
+      <span class="info-label">区域</span>
+      <span class="info-value">{item.district}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">年份</span>
+      <span class="info-value">{item.year}年</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">学段</span>
+      <span class="info-value">{item.schoolType}</span>
+    </div>
+    {item.hasDualDistrict !== undefined && (
+      <div class="info-row">
+        <span class="info-label">双学区</span>
+        <span class="info-value" style={item.hasDualDistrict ? 'color:var(--color-competition)' : ''}>
+          {item.hasDualDistrict ? '✅ 有' : '—'}
+        </span>
+      </div>
+    )}
+    {item.hasSiblingPolicy !== undefined && (
+      <div class="info-row">
+        <span class="info-label">长幼随学</span>
+        <span class="info-value" style={item.hasSiblingPolicy ? 'color:var(--color-competition)' : ''}>
+          {item.hasSiblingPolicy ? '✅ 有' : '—'}
+        </span>
+      </div>
+    )}
+  </div>
+</DocLayout>

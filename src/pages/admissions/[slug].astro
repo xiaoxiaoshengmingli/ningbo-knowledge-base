@@ -1,0 +1,50 @@
+---
+import DocLayout from '../../layouts/DocLayout.astro';
+import { getAdmissions, getCategoryInfo } from '../../lib/content';
+import type { AdmissionItem } from '../../lib/schema';
+
+export async function getStaticPaths() {
+  const items = getAdmissions();
+  return items.map(item => ({
+    params: { slug: item.slug },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props as { item: AdmissionItem };
+const catInfo = getCategoryInfo('admissions')!;
+---
+
+<DocLayout
+  item={item}
+  categoryLabel={catInfo.label}
+  categoryIcon={catInfo.icon}
+  categoryKey="admissions"
+>
+  <div slot="extra-meta">
+    <div class="info-row">
+      <span class="info-label">学校</span>
+      <span class="info-value" style="font-weight:600;">{item.school}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">学校类型</span>
+      <span class="info-value">{item.schoolType}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">招生人数</span>
+      <span class="info-value" style="font-weight:700;color:var(--color-admission);">{item.admissionQuota}人</span>
+    </div>
+    {item.scoreRequirement && (
+      <div class="info-row">
+        <span class="info-label">中考要求</span>
+        <span class="info-value">{item.scoreRequirement}</span>
+      </div>
+    )}
+    {item.examWeight && (
+      <div class="info-row">
+        <span class="info-label">权重</span>
+        <span class="info-value">{item.examWeight}</span>
+      </div>
+    )}
+  </div>
+</DocLayout>
