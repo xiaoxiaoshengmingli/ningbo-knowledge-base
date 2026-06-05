@@ -5,9 +5,10 @@ export interface Props {
 }
 
 const { tagId, color } = Astro.props;
+const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
 ---
 
-<a href={`/tags/${tagId}`} class="tag-link">
+<a href={`${base}/tags/${tagId}`} class="tag-link">
   <span class="tag" style={color ? `background:${color}22;color:${color};` : ''}>
     {tagId}
   </span>

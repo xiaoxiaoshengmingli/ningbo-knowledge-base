@@ -1,11 +1,12 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
+const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
 const categories = [
-  { icon: '📜', label: '政策文件', href: '/policies/' },
-  { icon: '🏆', label: '竞赛信息', href: '/competitions/' },
-  { icon: '🎯', label: '科技特长生', href: '/admissions/' },
-  { icon: '🗺️', label: '学区信息', href: '/districts/' },
+  { icon: '📜', label: '政策文件', href: `${base}/policies/` },
+  { icon: '🏆', label: '竞赛信息', href: `${base}/competitions/` },
+  { icon: '🎯', label: '科技特长生', href: `${base}/admissions/` },
+  { icon: '🗺️', label: '学区信息', href: `${base}/districts/` },
 ];
 ---
 
@@ -16,7 +17,7 @@ const categories = [
     <p style="color:var(--text-secondary);margin-bottom:2rem;">您访问的页面不存在，请检查链接是否正确。</p>
 
     <div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;">
-      <a href="/" style="padding:0.625rem 1.5rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);text-decoration:none;">
+      <a href={`${base}/`} style="padding:0.625rem 1.5rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-md);color:var(--text-primary);text-decoration:none;">
         🏠 返回首页
       </a>
       {categories.map(cat => (

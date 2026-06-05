@@ -15,11 +15,12 @@ const { tagId } = Astro.props as { tagId: string };
 const items = getItemsByTag(tagId);
 const tagColor = getTagColor(tagId);
 const categories = getCategories() as Record<string, { label: string; icon: string; color: string }>;
+const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
 ---
 
 <BaseLayout>
   <div class="breadcrumb">
-    <a href="/">首页</a>
+    <a href={`${base}/`}>首页</a>
     <span class="separator">›</span>
     <span style="color:var(--text-secondary);">🏷️ 标签</span>
     <span class="separator">›</span>
@@ -43,7 +44,7 @@ const categories = getCategories() as Record<string, { label: string; icon: stri
           <ContentCard
             title={item.title}
             summary={item.summary}
-            href={`/${item.category}/${item.slug}`}
+            href={`${base}/${item.category}/${item.slug}`}
             category={cat?.label ?? item.category}
             date={item.lastUpdated}
             tags={item.tags}

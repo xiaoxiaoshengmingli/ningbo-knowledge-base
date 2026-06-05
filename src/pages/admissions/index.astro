@@ -4,6 +4,8 @@ import ContentCard from '../../components/ContentCard.astro';
 import FilterSidebar from '../../components/FilterSidebar.astro';
 import { getAdmissions, getCategories, getTags, getCategoryInfo } from '../../lib/content';
 
+const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
+
 export async function getStaticPaths() {
   return [{ params: {}, props: {} }];
 }
@@ -18,7 +20,7 @@ const allTags = tags.filter(t => t.category === 'admission' || t.category === 'a
 
 <BaseLayout>
   <div class="breadcrumb">
-    <a href="/">首页</a>
+    <a href={`${base}/`}>首页</a>
     <span class="separator">›</span>
     <span style="color:var(--text-secondary);">🎯 科技特长生</span>
   </div>
@@ -36,7 +38,7 @@ const allTags = tags.filter(t => t.category === 'admission' || t.category === 'a
             <ContentCard
               title={item.title}
               summary={item.summary}
-              href={`/admissions/${item.slug}`}
+              href={`${base}/admissions/${item.slug}`}
               category="🎯 科技特长生"
               date={item.publishDate}
               tags={item.tags}

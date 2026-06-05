@@ -4,6 +4,8 @@ import ContentCard from '../../components/ContentCard.astro';
 import FilterSidebar from '../../components/FilterSidebar.astro';
 import { getDistricts, getCategories, getTags, getCategoryInfo } from '../../lib/content';
 
+const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
+
 export async function getStaticPaths() {
   return [{ params: {}, props: {} }];
 }
@@ -18,7 +20,7 @@ const allTags = tags.filter(t => t.category === 'district' || t.category === 'al
 
 <BaseLayout>
   <div class="breadcrumb">
-    <a href="/">首页</a>
+    <a href={`${base}/`}>首页</a>
     <span class="separator">›</span>
     <span style="color:var(--text-secondary);">🗺️ 学区信息</span>
   </div>
@@ -36,7 +38,7 @@ const allTags = tags.filter(t => t.category === 'district' || t.category === 'al
             <ContentCard
               title={item.title}
               summary={item.summary}
-              href={`/districts/${item.slug}`}
+              href={`${base}/districts/${item.slug}`}
               category="🗺️ 学区信息"
               date={item.publishDate}
               tags={item.tags}

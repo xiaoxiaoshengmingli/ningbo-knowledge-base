@@ -4,6 +4,8 @@ import ContentCard from '../../components/ContentCard.astro';
 import FilterSidebar from '../../components/FilterSidebar.astro';
 import { getPolicies, getCategories, getTags, getCategoryInfo, getContentCounts } from '../../lib/content';
 
+const base = (import.meta.env.BASE_URL || '').replace(/\/$/, '');
+
 export async function getStaticPaths() {
   return [{ params: {}, props: {} }];
 }
@@ -22,7 +24,7 @@ const allTags = tags.filter(t => t.category === 'policy' || t.category === 'all'
 
 <BaseLayout>
   <div class="breadcrumb">
-    <a href="/">首页</a>
+    <a href={`${base}/`}>首页</a>
     <span class="separator">›</span>
     <span style="color:var(--text-secondary);">📜 政策文件</span>
   </div>
@@ -42,7 +44,7 @@ const allTags = tags.filter(t => t.category === 'policy' || t.category === 'all'
             <ContentCard
               title={item.title}
               summary={item.summary}
-              href={`/policies/${item.slug}`}
+              href={`${base}/policies/${item.slug}`}
               category="📜 政策文件"
               date={item.publishDate}
               tags={item.tags}

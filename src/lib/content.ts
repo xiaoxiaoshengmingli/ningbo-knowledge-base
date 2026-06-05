@@ -6,6 +6,13 @@ import tagsData from '../data/tags.json';
 import categoriesData from '../data/categories.json';
 import type { ContentItem, PolicyItem, CompetitionItem, AdmissionItem, DistrictItem } from './schema';
 
+// Base URL helper - pass from templates via Astro.glob or import.meta.env
+export function url(path: string, base?: string): string {
+  const b = (base || '').replace(/\/$/, '');
+  if (!b) return path;
+  return b + path;
+}
+
 // ===== Type loaders =====
 export function getPolicies(): PolicyItem[] {
   return policiesData as PolicyItem[];
